@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="result-container">
+       
+        <p>{{ prediction_result }}</p>
+        <table id="collegeTable">
+            <tbody>
+                {% for college in colleges %}
+                <tr>
+                    <td>{{ college['institute_short'] }}</td>
+                    <td>{{ college['program_name'] }}</td>
+                    <td>{{ college['city_name'] }}</td>
+                    <td><a href="{{ college['link'] }}" target="_blank">{{ college['link'] }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

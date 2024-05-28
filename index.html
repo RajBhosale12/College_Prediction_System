@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Search</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    
+</head>
+<body>
+      <!-- Navigation Bar -->
+      <div class="navbar">
+        <h2>Ml based college prediction system</h2>
+        <div class="navbar-right">
+            <a href="#search-form">Search</a>
+            <a href="#search-results">Results</a>
+        </div>
+    </div>
+    
+
+   <br><br> <br><br><br><br>  
+    <!-- Slideshow container -->
+<div class="slideshow-container">
+    {% for image in slideshow_images %}
+    <img class="mySlides" src="{{ url_for('static', filename='images/' + image) }}" style="width:100%">
+    {% endfor %}
+</div>
+    <div class="container">
+        <div class="form-container">
+            <h1>College Search</h1>
+            <form id="search-form" onsubmit="return validateForm()">
+                <label for="category">Category:</label>
+                <select id="category" name="category">
+                    <option value="0">GEN : General</option>
+                    <option value="4">OBC-NCL : Other Backward Classes-Non Creamy Layer</option>
+                    <option value="6">SC : Scheduled Castes</option>
+                    <option value="8">ST : Scheduled Tribes</option>
+                    <option value="3">GEN-PWD : General & Persons with Disabilities</option>
+                    <option value="5">OBC-NCL-PWD : Other Backward Classes & Persons with Disabilities</option>
+                    <option value="7">SC-PWD : Scheduled Castes & Persons with Disabilities</option>
+                    <option value="9">ST-PWD : Scheduled Tribes & Persons with Disabilities</option>
+                    <option value="1">GEN-EWS : General & Economically Weaker Section</option>
+                    <option value="2">GEN-EWS-PWD : General & Economically Weaker Section & Persons with Disability</option>
+                </select><br>
+
+                <label for="quota">Quota:</label>
+                <select id="quota" name="quota">
+                    <option value="0">AI : All-India</option>
+                    <option value="3">HS : Home-State</option>
+                    <option value="6">OS : Other-State</option>
+                    <option value="1">AP : Andhra Pradesh</option>
+                    <option value="2">GO : Goa</option>
+                    <option value="4">JK : Jammu & Kashmir</option>
+                    <option value="5">LA : Ladakh</option>
+                </select><br>
+
+                <label for="pool">Pool:</label>
+                <select id="pool" name="pool">
+                    <option value="0">Gender-Neutral</option>
+                    <option value="1">Female-only</option>
+                </select><br>
+
+                <label for="round_no">Round Number:</label>
+                <input type="number" name="round_no" id="round_no" required><br>
+
+                <label for="institute_type">Institute Type:</label>
+                <select name="institute_type" id="institute_type" required>
+                    <option value="1">IIT</option>
+                    <option value="0">NIT</option>
+                </select><br>
+                <label for="opening_rank">Rank:</label>
+                <input type="number" name="opening_rank" id="opening_rank" required><br>
+                
+                <span id="error" style="color: red; display: none;">Please enter a valid rank</span><br>
+                
+                <button type="submit" id="search">Search</button>
+            </form>
+        </div>
+        <div class="result-container" id="search-results">
+            <!-- Prediction result division -->
+            <div id="prediction-result">
+                <h2>The best college for you is:</h2>
+                <div id="prediction-result-content"></div>
+            </div>
+            <br>
+            <h3>And some more colleges for you are</h3>
+            <table id="result-table">
+                <thead>
+                    <tr>
+                        <th>Institute Name</th>
+                        <th>Course</th>
+                        <th>City</th> 
+                        <th>Link</th>  
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be dynamically populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function validateForm() {
+            var rank = parseInt(document.getElementById("opening_rank").value);
+            if (isNaN(rank) || rank <= 0) {
+                document.getElementById("error").style.display = "block";
+                return false;
+            } else {
+                document.getElementById("error").style.display = "none";
+                return true;
+            }
+        }
+
+        document.getElementById('search-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (validateForm()) {
+                searchColleges();
+            }
+        });
+
+        function searchColleges() {
+            var formData = new FormData(document.getElementById('search-form'));
+            fetch('/search', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('result-table').getElementsByTagName('tbody')[0].innerHTML = data;
+                scrollToResults(); // Auto-scroll to results
+            })
+            .catch(error => console.error('Error:', error));
+            
+            // Fetch and display prediction result
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("prediction-result-content").innerHTML = data;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function scrollToResults() {
+            document.getElementById("search-results").scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+// JavaScript for slideshow
+var slideIndex = 0;
+showSlides();
+
+function showSlides() {
+    var i;
+    var slides = document.getElementsByClassName("mySlides");
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    slideIndex++;
+    if (slideIndex > slides.length) {
+        slideIndex = 1;
+    }
+    slides[slideIndex - 1].style.display = "block";
+    setTimeout(showSlides, 3000); // Change image every 2 seconds
+}
+
+    </script>
+</body>
+</html>
